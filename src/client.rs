@@ -244,7 +244,7 @@ impl Client {
             bail!("Incoming only mode");
         }
         // to-do: remember the port for each peer, so that we can retry easier
-        if hbb_common::is_ip_str(peer) {
+        if crate::common::is_direct_ip_access(peer) {
             return Ok((
                 (
                     connect_tcp_local(check_port(peer, RELAY_PORT + 1), None, CONNECT_TIMEOUT)

@@ -2680,8 +2680,38 @@ pub fn get_control_permission(
     }
 }
 
+#[inline]
+pub fn is_domain_str(id: &str) -> bool {
+    let parts: Vec<&str> = id.split('.').collect();
+    if parts.len() < 2 {
+        return false;
+    }
+    for part in &parts {
+        if part.is_empty() || part.len() > 63 {
+            return false;
+        }
+        for c in part.chars() {
+            if !c.is_ascii_alphanumeric() && c != '-' {
+                return false;
+            }
+        }
+    }
+    // TLD shouldn't have digits or be empty
+    if let Some(tld) = parts.last() {
+        if tld.is_empty() {
+            return false;
+        }
+        for c in tld.chars() {
+            if !c.is_ascii_alphabetic() {
+                return false;
+            }
+        }
+    }
+    true
+}
+
 pub fn is_direct_ip_access(peer: &str) -> bool {
-    hbb_common::is_ip_str(peer) || hbb_common::is_domain_port_str(peer)
+    hbb_common::is_ip_str(peer) || hbb_common::is_domain_port_str(peer) || is_domain_str(peer)
 }
 
 // Align the maximum length of the peer id to the maximum length of the peer id in the server.
