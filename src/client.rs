@@ -2664,12 +2664,15 @@ impl LoginConfigHandler {
         password: Vec<u8>,
     ) -> Message {
         let my_id = Config::get_id();
-        let (my_id, pure_id) = if let Some((id, _, _)) = self.other_server.as_ref() {
+        let (my_id, mut pure_id) = if let Some((id, _, _)) = self.other_server.as_ref() {
             let server = Config::get_rendezvous_server();
             (format!("{my_id}@{server}"), id.clone())
         } else {
             (my_id, self.id.clone())
         };
+        if crate::common::is_domain_str(&pure_id) || hbb_common::is_domain_port_str(&pure_id) {
+            pure_id = "127.0.0.1".to_owned();
+        }
         let mut avatar = get_builtin_option(keys::OPTION_AVATAR);
         if avatar.is_empty() {
             avatar = serde_json::from_str::<serde_json::Value>(&LocalConfig::get_option(
